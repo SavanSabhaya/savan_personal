@@ -24,7 +24,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2.13.0
         with:
-          flutter-version: '3.22.2' # Latest stable Flutter version
+          flutter-version: '3.29.2' # Latest stable Flutter version
           channel: 'stable'
           cache: true # Enable caching of Flutter dependencies
           cache-key: flutter-${{ runner.os }}-${{ matrix.flutter-version }}-${{ hashFiles('pubspec.lock') }}
