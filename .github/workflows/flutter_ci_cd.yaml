@@ -1,52 +1,32 @@
-name: Flutter CI - Build APK Only
+# To add CI/CD into git for Flutter:
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+# -  Create project and upload it to Git
 
+# - Go to Action > Dart (configure) > find Flutter Action from Marketplace
+
+# - Then Create main.yaml file and add below script:
+on: push
+name: Test, Build and Release apk
 jobs:
-  build-apk:
-    name: Build Android APK
+  build:
+    name: Build APK
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Java
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
         with:
-          distribution: 'zulu'
+          distribution: 'zulu' # See 'Supported distributions' for available options
           java-version: '17'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.4'
-          channel: 'stable'
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Run tests
-        run: flutter test
-
-      - name: Build APK
-        run: flutter build apk --release
-
-      - name: Check if APK exists
-        run: |
-          if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
-            echo "✅ APK built successfully."
-          else
-            echo "❌ APK not found!"
-            exit 1
-          fi
-
-      - name: Upload APK as Artifact
-      - uses: actions/upload-artifact@v4
+          flutter-version: '3.29.2'
+      - run: flutter pub get
+      - run: flutter test
+      - run: flutter build apk --profile
+      - name: Build profile APK
+        uses: ncipollo/release-action@v1
         with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          artifacts: "build/app/outputs/flutter-apk/app-profile.apk"
+          token: ${{ secrets.TOKEN }}
+# - To get Token, go git project setting > Secrets and variables > Actions> Secrets > New repository secrets >
+# add secret key name (here CICD) > and add secret key
