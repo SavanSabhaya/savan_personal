@@ -35,16 +35,21 @@ jobs:
         with:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 5
 
   deploy-android:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' # Only deploy from main branch
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Download APK
         uses: actions/download-artifact@v3
         with:
           name: release-apk
+          path: ./apk
+      
+      - name: Display structure of downloaded files
+        run: ls -R ./apk
       
       # Here you would add your preferred deployment method
       # For example, Firebase App Distribution:
@@ -54,19 +59,19 @@ jobs:
       #     appId: ${{ secrets.FIREBASE_APP_ID }}
       #     serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
       #     groups: testers
-      #     file: app-release.apk
+      #     file: ./apk/app-release.apk
 
   deploy-ios:
     needs: build
     runs-on: macos-latest
-    if: github.ref == 'refs/heads/main' # Only deploy from main branch
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v3
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0'
+          flutter-version: '3.29.2'
           channel: 'stable'
       
       - name: Install dependencies
@@ -74,14 +79,3 @@ jobs:
       
       - name: Build iOS
         run: flutter build ios --release --no-codesign
-      
-      # For actual iOS deployment, you would need:
-      # - Code signing setup
-      # - TestFlight or App Store Connect deployment
-      # This is commented out as it requires specific Apple Developer credentials
-      # - name: Deploy to TestFlight
-      #   uses: apple-actions/upload-testflight-build@v1
-      #   with:
-      #     app-path: build/ios/iphoneos/Runner.app
-      #     apple-id: ${{ secrets.APPLE_ID }}
-      #     password: ${{ secrets.APPLE_PASSWORD }}
